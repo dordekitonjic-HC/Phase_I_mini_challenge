@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>phase1-mini-app – Status</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .ok { color: green; } .err { color: red; }
+    ul { padding-left: 1.2rem; }
+    input { width: 70%; padding: 0.4rem; }
+    button { padding: 0.4rem 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1 id="title">phase1-mini-app – Status</h1>
+
+  <div class="card">
+    <h2>Service</h2>
+    <p id="info">Lade …</p>
+  </div>
+
+  <div class="card">
+    <h2>Datenbank</h2>
+    <p id="db">Prüfe …</p>
+  </div>
+
+  <div class="card">
+    <h2>Notizen</h2>
+    <ul id="notes"></ul>
+    <input id="noteText" maxlength="500" placeholder="Neue Notiz (max. 500 Zeichen)" />
+    <button onclick="addNote()">Speichern</button>
+    <p id="noteMsg"></p>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    // Gleiche Herkunft: Der Frontend-Nginx proxyt /api/* auf die api-VM.
+    // Nur lokal ohne Proxy greift API_BASE_URL aus config.js.
+    const CFG = window.APP_CONFIG || {};
+    const API = (CFG.API_BASE_URL || "").replace(/\/$/, "");
+    if (CFG.APP_NAME) document.getElementById("title").textContent = CFG.APP_NAME + " – Status";
+
+    async function load() {
+      try {
+        const info = await (await fetch(API + "/api/info")).json();
+        document.getElementById("info").innerHTML =
+          "Service <b>" + info.service + "</b> auf <b>" + info.host + "</b>, Uptime: " + info.uptime_seconds + "s";
+      } catch (e) { document.getElementById("info").innerHTML = "<span class='err'>API nicht erreichbar</span>"; }
+
+      try {
+        const db = await (await fetch(API + "/api/db")).json();
+        document.getElementById("db").innerHTML = db.status === "ok"
+          ? "<span class='ok'>verbunden</span> – " + db.db_version
+          : "<span class='err'>Fehler:</span> " + (db.detail || "unbekannt");
+      } catch (e) { document.getElementById("db").innerHTML = "<span class='err'>DB-Check fehlgeschlagen</span>"; }
+
+      try {
+        const data = await (await fetch(API + "/api/notes")).json();
+        const ul = document.getElementById("notes");
+        ul.innerHTML = "";
+        (data.notes || []).forEach(n => {
+          const li = document.createElement("li");
+          li.textContent = "#" + n.id + " " + n.text + " (" + n.created_at + ")";
+          ul.appendChild(li);
+        });
+        if (!ul.children.length) ul.innerHTML = "<li>Noch keine Notizen.</li>";
+      } catch (e) { document.getElementById("notes").innerHTML = "<li>Notizen nicht ladbar (DB prüfen).</li>"; }
+    }
+
+    async function addNote() {
+      const text = document.getElementById("noteText").value;
+      const res = await fetch(API + "/api/notes", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text})
+      });
+      document.getElementById("noteMsg").textContent = res.ok ? "Gespeichert." : "Fehler (" + res.status + ").";
+      document.getElementById("noteText").value = "";
+      load();
+    }
+
+    load();
+  </script>
+</body>
+</html>

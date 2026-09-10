@@ -23,5 +23,9 @@ end
 config.vm.define "api" do |api|
     api.vm.hostname = "api"
     api.vm.network :private_network, ip: "192.168.56.13"
-    end
+end
+
+config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yml"
+  end
 end

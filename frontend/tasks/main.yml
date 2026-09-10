@@ -1,0 +1,26 @@
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /api
+    state: directory
+    mode: '0755'  
+
+- name: Copying frontend image from host to frontend server
+  ansible.builtin.copy:
+    src: /home/dorde/git/Phase_I_mini_challenge/docker/frontend/frontend.tar
+    dest: /api/
+
+- name: Load image from archive
+  community.docker.docker_image:
+    name: docker-frontend
+    tag: latest
+    load_path: /api/frontend.tar
+    source: load
+
+- name: Run frontend container and publish ports
+  community.docker.docker_container:
+    name: frontend_app
+    image: docker-frontend:latest
+    state: started
+    restart_policy: always
+    published_ports:
+      - "8080:80"

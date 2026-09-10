@@ -1,0 +1,25 @@
+---
+- name: Configure Common setup on all nodes
+  hosts: all
+  become: true
+  roles:
+    - common
+    - geerlingguy.docker
+
+- name: Configure Database server
+  hosts: db
+  become: true
+  roles:
+    - db
+
+- name: Configure Backend API server
+  hosts: api
+  become: true
+  roles:
+    - backend
+
+- name: Configure Frontend server
+  hosts: frontend
+  become: true
+  roles:
+    - frontend

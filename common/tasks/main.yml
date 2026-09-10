@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for common
+#- name: Update all packages to their latest version
+#  ansible.builtin.apt:
+#    name: "*"
+#    state: latest
+#    force: true

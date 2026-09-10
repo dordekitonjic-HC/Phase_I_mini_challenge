@@ -4,6 +4,6 @@
  * Reverse Proxy hier die API-Adresse eintragen, z. B. "http://127.0.0.1:5000".
  */
 window.APP_CONFIG = {
-  API_BASE_URL: "",
+  API_BASE_URL: "http://192.168.56.13:5000",
   APP_NAME: "phase1-mini-app"
 };

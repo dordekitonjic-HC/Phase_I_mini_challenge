@@ -1,4 +1,9 @@
 ---
+- name: Set timezone to Europe/Berlin
+  become: true
+  community.general.timezone:
+    name: Europe/Berlin
+
 - name: Comment out Include directive for sshd_config.d to prevent overrides
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config

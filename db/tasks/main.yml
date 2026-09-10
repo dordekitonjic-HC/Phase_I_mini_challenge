@@ -1,10 +1,16 @@
 #SPDX-License-Identifier: MIT-0
 ---
+- name: Create Docker volume to persist Database.
+  community.docker.docker_volume:
+    name: pg_data
+    
 - name: Pulling and starting postgres
   community.docker.docker_container:
     name: postgres-latest
     image: postgres
     state: started
+    volumes:
+      - pg_data:/var/lib/postgresql
     pull: true
     restart_policy: unless-stopped
     ports:

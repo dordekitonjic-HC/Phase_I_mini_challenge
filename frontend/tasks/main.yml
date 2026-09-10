@@ -24,3 +24,17 @@
     restart_policy: always
     published_ports:
       - "8080:80"
+
+- name: Copy healthcheck script to backend server
+  ansible.builtin.copy:
+    src: /home/dorde/git/Phase_I_mini_challenge/healthcheck.sh
+    dest: /usr/local/bin/healthcheck.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Creates a cronjob with healtcheck script and runs it
+  ansible.builtin.cron:
+    name: "backend healtcheck"
+    job: "/usr/local/bin/healthcheck.sh"
+    user: root

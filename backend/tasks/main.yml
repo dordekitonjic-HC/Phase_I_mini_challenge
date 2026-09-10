@@ -38,17 +38,3 @@
           65646138303235353033373530316632343965636564356137346633343562343137633637306434
           3332313866313438350a383234656363653435623862636132316139373862386466626232353162
           6430
-
-- name: Copy healthcheck script to backend server
-  ansible.builtin.copy:
-    src: /home/dorde/git/Phase_I_mini_challenge/healthcheck.sh
-    dest: /usr/local/bin/healthcheck.sh
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Creates a cronjob with healtcheck script and runs it
-  ansible.builtin.cron:
-    name: "backend healtcheck"
-    job: "/usr/local/bin/healthcheck.sh"
-    user: root
